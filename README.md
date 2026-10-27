@@ -48,13 +48,11 @@ curl -X POST localhost:8080/shorten \
 
 ### `POST /shorten`：建立短網址
 
-```bash
-curl -i -X POST localhost:8080/shorten \
-  -H 'Content-Type: application/json' \
-  -d '{"url":"https://go.dev/doc/"}'
 ```
+$ curl -i -X POST localhost:8080/shorten \
+    -H 'Content-Type: application/json' \
+    -d '{"url":"https://go.dev/doc/"}'
 
-```
 HTTP/1.1 201 Created
 Content-Type: application/json
 
@@ -63,11 +61,9 @@ Content-Type: application/json
 
 ### `GET /{code}`：轉址
 
-```bash
-curl -i localhost:8080/CmeBbR
 ```
+$ curl -i localhost:8080/CmeBbR
 
-```
 HTTP/1.1 302 Found
 Location: https://go.dev/doc/
 ```
@@ -115,7 +111,7 @@ go vet ./...           # 靜態檢查
 - **短碼產生**：使用 `crypto/rand` 產生 6 碼英數字（62⁶ ≈ 570 億種組合），短碼無法被預測或列舉。
 - **碰撞處理**：`Store.Save` 遇到重複的短碼時回傳 `ErrCodeExists`，handler 重新產生短碼後重試，最多 5 次。
 - **輸入驗證**：只接受有 host 的 http/https 網址，擋掉 `javascript:` 等 scheme，避免服務被拿來轉址到惡意連結。
-- **301 會被瀏覽器永久快取**：改回傳 302，之後的請求仍會經過這個服務。
+- **302 而非 301**：瀏覽器會永久快取 301，之後的請求就不會再經過這個服務。
 - **Server 逾時**：使用自訂的 `http.Server`，設定 `ReadHeaderTimeout`、`ReadTimeout`、`WriteTimeout`、`IdleTimeout`，避免慢速客戶端（例如 Slowloris）長時間佔住連線。
 - **日誌**：使用 `log/slog` 輸出 JSON 格式。
 
