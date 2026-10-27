@@ -1,6 +1,9 @@
 package store
 
-import "sync"
+import (
+	"context"
+	"sync"
+)
 
 // Compile-time check that *Memory satisfies Store. If a method signature
 // drifts, the build fails here rather than at some distant call site.
@@ -21,7 +24,14 @@ func NewMemory() *Memory {
 	return &Memory{urls: make(map[string]string)}
 }
 
-func (m *Memory) Save(code, url string) error {
+func (m *Memory) Save(ctx context.Context, code, url string) error {
+	// Map access never blocks, so there is nothing to interrupt midway.
+	// Checking up front still honours the contract: a caller that has
+	// already given up should not cause a write.
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	// The existence check and the write must happen under the same lock.
 	// Checking under RLock and then writing under Lock would let two
 	// goroutines both see "free" and silently overwrite each other.
@@ -35,7 +45,11 @@ func (m *Memory) Save(code, url string) error {
 	return nil
 }
 
-func (m *Memory) Get(code string) (string, error) {
+func (m *Memory) Get(ctx context.Context, code string) (string, error) {
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
