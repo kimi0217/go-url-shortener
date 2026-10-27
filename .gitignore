@@ -1,8 +1,6 @@
-cat > .gitignore << 'EOF'
 /server
 *.exe
 *.test
 *.out
 .env
 .DS_Store
-EOF
