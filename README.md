@@ -1,5 +1,7 @@
 # go-url-shortener
 
+[![CI](https://github.com/kimi0217/go-url-shortener/actions/workflows/ci.yml/badge.svg)](https://github.com/kimi0217/go-url-shortener/actions/workflows/ci.yml)
+
 用 Go 標準庫寫的短網址 REST API，沒有任何外部依賴。
 
 ## 需求
